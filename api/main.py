@@ -62,7 +62,7 @@ async def root(request: Request) -> JSONResponse:
         case {"ref": _, **_rest} if "ref_type" not in payload:
             on_push(payload)
 
-        # TODO: Implement handlers for other GitHub events as needed
+        # Implement handlers for other GitHub events as needed
         # case {"action": "opened", "pull_request": _, **_rest}:
         #     on_pull_request(payload)
         # case {"action": "opened", "issue": _, **_rest}:
