@@ -2,14 +2,14 @@ FROM python:3.13-alpine
 
 LABEL org.opencontainers.image.created="%%CREATED%%" \
       org.opencontainers.image.authors="nic.cheneweth@thoughtworks.com" \
-      org.opencontainers.image.documentation="https://github.com/twplatformlabs/agentic-code-reviewer" \
-      org.opencontainers.image.source="https://github.com/twplatformlabs/agentic-code-reviewer" \
-      org.opencontainers.image.url="https://github.com/twplatformlabs/agentic-code-reviewer" \
+      org.opencontainers.image.documentation="https://github.com/twplatformlabs/github-webhook-receiver" \
+      org.opencontainers.image.source="https://github.com/twplatformlabs/github-webhook-receiver" \
+      org.opencontainers.image.url="https://github.com/twplatformlabs/github-webhook-receiver" \
       org.opencontainers.image.version="%%VERSION%%" \
       org.opencontainers.image.vendor="ThoughtWorks, Inc." \
       org.opencontainers.image.licenses="MIT" \
-      org.opencontainers.image.title="agentic-code-reviewer" \
-      org.opencontainers.image.description="Virtual team member that responds to PRs" \
+      org.opencontainers.image.title="github-webhook-receiver" \
+      org.opencontainers.image.description="Python FastAPI-based GitHub webhook receiver." \
       org.opencontainers.image.base.name="%%BASE%%"
 
 ENV MUSL_LOCPATH=/usr/share/i18n/locales/musl \
