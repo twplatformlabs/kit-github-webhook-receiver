@@ -1,0 +1,179 @@
+---
+version: 2.1
+
+orbs:
+  python: twdps/python-api@2.0.0
+  op: twdps/onepassword@3.0.0
+  cosign: twdps/cosign@0.1.1
+  kube: twdps/kube-ops@1.1.2
+  do: twdps/pipeline-events@5.1.0
+
+globals:
+  - &context platform
+  - &shell op run --env-file op.env -- /bin/bash -eo pipefail
+  - &deploy-image twdps/circleci-kube-ops:alpine-2025.04
+  - &package-manager pip
+  - &image github-webhook-receiver
+  - &registry ghcr.io/twplatformlabs
+
+on-push-main: &on-push-main
+  branches:
+    only: /main/
+  tags:
+    ignore: /.*/
+
+on-tag-main: &on-tag-main
+  branches:
+    ignore: /.*/
+  tags:
+    only: /.*/
+
+commands:
+
+  set-environment:
+    parameters:
+      cluster:
+        description: target cluster
+        type: string
+        default: ""
+      tag:
+        description: image to deploy
+        type: string
+        default: dev.${CIRCLE_SHA1:0:7}
+    steps:
+      - op/env
+      - run:
+          name: set version var
+          command: |
+            echo "export API_VERSION=<< parameters.tag >>" >> $BASH_ENV
+            source $BASH_ENV
+      - op/write-to-file:
+          op-value: platform/svc-cosign-private-key/notesPlain
+          out-file: cosign.key
+      - op/write-to-file:
+          op-value: platform/svc-cosign-public-key/notesPlain
+          out-file: cosign.pub
+      - when:
+          condition: << parameters.cluster >>
+          steps:
+            - kube/op-config:
+                op-value: platform/<< parameters.cluster>>/kubeconfig-base64
+
+jobs:
+
+  deploy-github-webhook-receiver:
+    parameters:
+      cluster:
+        description: Deploy to cluster role
+        type: string
+      namespace:
+        description: Deploy to environment
+        type: string
+      tag:
+        description: Deploy image version
+        type: string
+    docker:
+      - image: *deploy-image
+    steps:
+      - checkout
+      - setup_remote_docker
+      - set-environment:
+          cluster: << parameters.cluster >>
+          tag: << parameters.tag >>
+      - run:
+          name: deploy github-webhook-receiver
+          command: bash scripts/deploy.sh "<< parameters.namespace >>" "<< parameters.tag >>"
+      - run:
+          name: test healthz endpoint
+          command: bash scripts/healthz_check.sh "<< parameters.namespace >>" "<< parameters.tag >>"
+      - run:
+          name: TODO - Deploy observability dashboard, monitoring, and alerting
+          command: echo "Placeholder for observability deployment"
+
+  delete-deployment:
+    parameters:
+      cluster:
+        description: Deploy to cluster role
+        type: string
+      namespace:
+        description: Deploy to environment
+        type: string
+      tag:
+        description: Deploy image version
+        type: string
+    docker:
+      - image: *deploy-image
+    steps:
+      - checkout
+      - setup_remote_docker
+      - set-environment:
+          cluster: << parameters.cluster >>
+          tag: << parameters.tag >>
+      - run:
+          name: delete deployment
+          command: bash scripts/uninstall.sh "<< parameters.namespace >>" "<< parameters.tag >>"
+
+workflows:
+  version: 2
+
+  development-build:
+    jobs:
+      - python/static-analysis:
+          name: static code analysis
+          context: *context
+          shell: *shell
+          package-manager: *package-manager
+          install-dev: true
+          lint-path: api
+          coverage: false
+          report-coverage: codacy
+          after-checkout:
+            - run:
+                name: set API_VERSION
+                command: |
+                  echo "export API_VERSION=dev.${CIRCLE_SHA1:0:7}" >> $BASH_ENV
+                  source $BASH_ENV
+          filters: *on-push-main
+
+      - python/oci-image-build:
+          name: build multi-arch image
+          context: *context
+          image: *image
+          registry: *registry
+          cve-scan: true
+          snyk-organization: twplatformlabs
+          health-url: "http://0.0.0.0:8000/v1/webhook/healthz"
+          port-definition: "8000:8000"
+          docker-run-arguments: "-e API_VERSION=dev.${CIRCLE_SHA1:0:7}"
+          before-build:
+            - set-environment
+          requires:
+            - static code analysis
+          filters: *on-push-main
+
+      - deploy-github-webhook-receiver:
+          name: dev deployment
+          context: *context
+          cluster: prod-i01-aws-us-east-2
+          namespace: dev
+          tag: dev.${CIRCLE_SHA1:0:7}
+          requires:
+            - build multi-arch image
+          filters: *on-push-main
+
+  release:
+    jobs:
+      - do/gh-release:
+          name: generate release notes
+          context: *context
+          notes-from-file: release.md
+          include-commit-msg: true
+          before-release:
+            - op/env
+          after-release:
+            - do/slack-bot:
+                channel: lab-events
+                message: Release github-webhook-receiver
+                include-link: true
+                include-tag: true
+          filters: *on-tag-main
