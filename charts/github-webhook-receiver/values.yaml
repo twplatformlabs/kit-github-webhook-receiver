@@ -27,8 +27,8 @@ image:
   name: github-webhook-receiver
   tag: ""
   pullPolicy: IfNotPresent
-  readiness: /v1/review/healthz
-  liveness: /v1/review/healthz
+  readiness: /v1/webhook/healthz
+  liveness: /v1/webhook/healthz
   imagePullSecret: regcred
 
 strategy:
