@@ -159,3 +159,21 @@ Now, hit SEND. If correctly setup you will receive a 200 response.
     "message": "Webhook received successfully"
 }
 ```
+### Healthy pod log messages
+
+A typically log stream for a healthy webhook, and with a GitHub push event being received, will look like this:  
+```bash
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.6:34153 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:53927 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:49329 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:58999 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:54267 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:43137 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+INFO:     127.0.0.6:52509 - "GET /v1/webhook/healthz HTTP/1.1" 200 OK
+Push event data: {'ref': 'refs/heads/main', 'before': '1095f728d68b83773fe1fd249ea', 'after': '2edac7051c3c669b039783', 'repository': {'id': 996190...
+INFO:     127.0.0.6:45841 - "POST /v1/webhook HTTP/1.1" 202 Accepted
+```
