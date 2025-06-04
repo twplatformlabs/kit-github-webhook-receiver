@@ -1,0 +1,1 @@
+webhookSecret: {{ op://platform/demo-github-webhook-receiver/github-webhook-secret }}
