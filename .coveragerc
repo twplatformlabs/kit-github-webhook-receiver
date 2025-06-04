@@ -1,0 +1,43 @@
+[coverage:report]
+skip_empty = true
+
+[run]
+branch = True
+omit =
+      .pytest_cache/
+      .circleci/
+      .codeclimate.yml
+      .coveragerc
+      .gitignore
+      .pylintrc
+      .python-version
+      Dockerfile
+      LICENSE
+      notes.py
+      Pipfile*
+      README.md
+      *.env
+      api/__init__.py
+      api/routes/__init__.py
+      api/__pycache__/
+      api/routes/__pycache__/
+
+[report]
+omit =
+      .pytest_cache/
+      .circleci/
+      .codeclimate.yml
+      .coveragerc
+      .gitignore
+      .pylintrc
+      .python-version
+      Dockerfile
+      LICENSE
+      notes.py
+      Pipfile*
+      README.md
+      *.env
+      api/__init__.py
+      api/routes/__init__.py
+      api/__pycache__/
+      api/routes/__pycache__/
