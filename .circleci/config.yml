@@ -161,6 +161,22 @@ workflows:
             - build multi-arch image
           filters: *on-push-main
 
+      - approve-run-minimum:
+          type: approval
+          requires:
+            - dev deployment
+          filters: *on-push-main
+
+      - delete-deployment:
+          name: remove dev deployment
+          context: *context
+          cluster: prod-i01-aws-us-east-2
+          namespace: dev
+          tag: dev.${CIRCLE_SHA1:0:7}
+          requires:
+            - approve-run-minimum
+          filters: *on-push-main
+
   release:
     jobs:
       - python/publish-image:
