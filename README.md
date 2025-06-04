@@ -4,7 +4,7 @@
 	</p>
   <h3>kit-github-webhook-receiver</h3>
   <h5>API Starterkit for receiving GitHub webhook events</h5>
-  <a href="hhttps://dl.circleci.com/status-badge/redirect/gh/twplatformlabs/kit-github-webhook-receiver/tree/main"><img src="https://dl.circleci.com/status-badge/img/gh/twplatformlabs/kit-github-webhook-receiver/tree/main.svg?style=svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+  <a href="https://dl.circleci.com/status-badge/redirect/gh/twplatformlabs/kit-github-webhook-receiver/tree/main"><img src="https://dl.circleci.com/status-badge/img/gh/twplatformlabs/kit-github-webhook-receiver/tree/main.svg?style=svg"></a> <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a> <a href="https://github.com/psf/black"><img src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </div>
 <br />
 
