@@ -5,9 +5,9 @@ This is a simple health check for Kubernetes orchestration.
 """
 
 from datetime import datetime, timezone
+from typing import Dict
 from fastapi import APIRouter, status
 from ..config import settings
-from typing import Dict
 
 route = APIRouter()
 
