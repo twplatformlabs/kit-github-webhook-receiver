@@ -1,0 +1,23 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "github-webhook-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "github-webhook-receiver.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "github-webhook-receiver.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: {{ .Values.autoscaling.utilizationMethod }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.targetUtilizationPercentage }}
+{{- end }}

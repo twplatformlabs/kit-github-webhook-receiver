@@ -1,0 +1,5 @@
+apiVersion: v2
+name: github-webhook-receiver
+description: Helm chart for twplatformlabs github-webhook-receiver API starterkit
+type: application
+version: 0.1.0

@@ -1,0 +1,20 @@
+# values.yaml includes dev settings
+
+virtualService:
+  create: true
+  hosts:
+    - dev.twplatformlabs.org
+  gateways:
+    - istio-system/dev-twplatformlabs-org-gateway
+  matchUrl: /v1/webhook
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  utilizationMethod: memory
+  targetUtilizationPercentage: 80
+
+podDisruptionBudget:
+  create: true
+  maxUnavailable: 1

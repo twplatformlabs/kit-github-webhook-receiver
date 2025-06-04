@@ -1,0 +1,14 @@
+{{- if .Values.podDisruptionBudget.create -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "github-webhook-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "github-webhook-receiver.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "github-webhook-receiver.labels" . | nindent 6 }}
+{{- end }}

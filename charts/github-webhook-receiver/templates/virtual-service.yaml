@@ -1,0 +1,24 @@
+{{- if .Values.serviceAccount.create -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ include "github-webhook-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "github-webhook-receiver.labels" . | nindent 4 }}
+spec:
+  hosts:
+    {{- toYaml .Values.virtualService.hosts | nindent 4 }}
+  gateways:
+    {{- toYaml .Values.virtualService.gateways | nindent 4 }}
+  http:
+    - name: {{ include "github-webhook-receiver.fullname" . }}-route
+      match:
+        - uri:
+            prefix: {{ .Values.virtualService.matchUrl }}
+      route:
+      - destination:
+          host: {{ include "github-webhook-receiver.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+          port:
+            number: {{ .Values.service.port | default 80 }}
+{{- end }}

@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "github-webhook-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "github-webhook-receiver.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "github-webhook-receiver.selectorLabels" . | nindent 6 }}
+  {{- with .Values.strategy }}
+  strategy:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "github-webhook-receiver.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "github-webhook-receiver.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: {{ .Values.service.name | default "http" }}
+              containerPort: {{ .Values.service.targetPort | default 80 }}
+              protocol: {{ .Values.service.protocol | default "TCP" }}
+          env:
+            - name: API_VERSION
+              value: {{ .Values.image.tag }}
+            - name: WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "github-webhook-receiver.fullname" . }}-secret
+                  key: webhookSecret
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.image.liveness }}
+              port: {{ .Values.service.name | default "http" }}
+            initialDelaySeconds: 3
+            periodSeconds: 15
+            failureThreshold: 4
+          readinessProbe:
+            httpGet:
+              path:  {{ .Values.image.readiness }}
+              port: {{ .Values.service.name | default "http" }}
+            initialDelaySeconds: 3
+            failureThreshold: 4
+            periodSeconds: 15
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if ne .Release.Namespace "demo-local" }}
+      imagePullSecrets:
+        - name: {{ .Values.image.imagePullSecret  | default "regcred" }}
+      {{- end }}
